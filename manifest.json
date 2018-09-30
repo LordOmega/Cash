@@ -4,6 +4,11 @@
     "lang": "en-US",
     "icons": [
       {
+        "src": "pwa/logo-16x16.png",
+        "sizes": "16x16",
+        "type": "image/png"
+      },
+      {
         "src": "pwa/logo-48x48.png",
         "sizes": "48x48",
         "type": "image/png",
@@ -20,6 +25,11 @@
         "sizes": "96x96",
         "type": "image/png",
         "density": 2.0
+      },
+      {
+        "src": "pwa/logo-128x128.png",
+        "sizes": "128x128",
+        "type": "image/png"
       },
       {
         "src": "pwa/logo-144x144.png",
@@ -41,10 +51,10 @@
       }
     ],
     "prefer_related_applications": false,
-    "start_url": "https://lordomega.github.io/Cash/",
+    "start_url": "https://lordomega.github.io/Cash/index.html",
     "display": "standalone",
     "orientation": "any",
     "background_color": "white",
     "theme_color": "rgb(16,121,236)"
-    }
+}
     
