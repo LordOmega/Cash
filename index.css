@@ -1,0 +1,77 @@
+body {
+    margin: auto 0;
+    padding: 0px;
+}
+
+h1, h2, h3, h4, h5, p, div, td, tr, table {
+    font-family: 'Open Sans', sans-serif;
+}
+
+tr {
+    height: 48px;
+    border-bottom: 1px solid grey;
+    margin: 0px;   
+}
+
+td {
+    padding: 0px 16px 0px 16px;
+}
+
+tr > td:nth-child(1) {
+    text-align: left;
+}
+
+tr > td:nth-child(2) {
+    text-align: right;
+}
+
+#categories, #items {
+    display: none;
+}
+
+#body {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+}
+
+#header {
+    width: 100vw;
+    height: 56px;
+    line-height: 56px;
+    display: flex;
+    justify-content: space-between;
+    background-color: rgba(248, 248, 248, 0.95);
+    position: fixed;
+    z-index: 6;
+}
+
+#footer {
+    width: 100vw;
+    height: 56px;
+    line-height: 56px;
+    display: flex;
+    justify-content: space-evenly;
+    background-color: rgba(248, 248, 248, 0.95);
+    position: fixed;
+    top: calc(100vh - 56px);
+    z-index: 6;
+}
+
+#navBack {
+    display: none;
+}
+
+#title {
+    height: 24px;
+    line-height: 24px;
+    font-weight: bold; 
+    text-overflow: ellipsis;
+}
+
+#amount {
+    font-size: 10px;
+    line-height: 10px;
+}
