@@ -19,6 +19,7 @@ self.addEventListener('install', function(event) {
 
 self.addEventListener('fetch', function(event) {
   event.respondWith((function() {
+    console.log(event.request, urlsToCache.includes(event.request));
     if(urlsToCache.includes(event.request)) {
       return caches.match(event.request).then(function(response) {
         var fetchPromise = fetch(event.request).then(function(networkResponse) {
