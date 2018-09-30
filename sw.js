@@ -19,19 +19,12 @@ self.addEventListener('install', function(event) {
 
 self.addEventListener('fetch', function(event) {
   event.respondWith((function() {
-    if(urlsToCache.includes(event.request)) {
-      return caches.match(event.request).then(function(response) {
-        var fetchPromise = fetch(event.request).then(function(networkResponse) {
-          caches.put(event.request, networkResponse.clone());
-          return networkResponse;
-        });
-        return response || fetchPromise;
-      })
-    } else {
-      return fetch(event.request).catch(function() {
-        return caches.match(event.request);
-      })
-    }   
+    fetch(event.request).then(function(networkResponse) {
+      caches.put(event.request, networkResponse.clone());
+      return networkResponse;
+    }).catch(function() {
+      return caches.match(event.request);
+    });  
   }()));
 });
 
