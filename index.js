@@ -39,6 +39,7 @@ var lastCategory = "";
 
 function navBack() {
     navIndex--;
+    document.getElementById('container').removeChild(document.getElementById('container').lastChild)
     if(navIndex == 0) {
         while (element.firstChild) {
             element.firstChild.remove();
@@ -120,9 +121,17 @@ function showCategories(month) {
         document.getElementById('content').appendChild(React.createElement('tr',{onclick: "showItems('" + month + "', '" + key + "');"},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},key),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},(data.months[month].categories[key].amount == undefined ? 0 : data.months[month].categories[key].amount) +  '€')));
     }
 
+    document.getElementById('container').appendChild(React.createElement('div',{onclick: 'deleteMonth("' + month + '")', style: "text-align: center; color: rgb(255, 59, 48); padding: 16px;"},'Delete Month'));
+
     document.getElementById('navLeftSpace').style.display = "none";
     document.getElementById('navBack').style.display = "block";
     document.getElementById('amount').textContent = data.months[month].amount + "€";
+}
+
+function deleteMonth(month) {
+    delete data.months[month];
+    localStorage.setItem("data", JSON.stringify(data));
+    navBack();
 }
 
 function showItems(month, category) {
