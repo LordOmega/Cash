@@ -1,5 +1,6 @@
 var CACHE_NAME = 'Cash_Happy_Pig_v1';
 var urlsToCache = [
+  '/Cash',
   '/Cash/',
   '/Cash/index.html',
   '/Cash/index.css',
