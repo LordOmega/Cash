@@ -6,6 +6,7 @@ if(localStorage.getItem("data") == undefined) {
 
 var data = JSON.parse(localStorage.getItem("data"));
 const element = document.getElementById('content');
+var _months_ = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
 
 var React = {
     createElement: function (tag, attrs, children) {
@@ -67,8 +68,9 @@ function calcMonth(_budget, _amount) {
 }
 
 function navAction() {
+    var _date_ = new Date();
     if(navIndex == 2) {
-        var name = prompt("name:", "");
+        var name = prompt("name:", _date_.getDate() + "." + (_date_.getMonth() + 1) + ".");
         var price = prompt("price:", "");
         if(name != "" && price != "") {
             var obj = {};
@@ -89,7 +91,7 @@ function navAction() {
             localStorage.setItem("data", JSON.stringify(data));
         } 
     } else if(navIndex == 0) {
-        var month = prompt("month:", "");
+        var month = prompt("month:", _months_[_date_.getMonth()] + " " + _date_.getFullYear());
         var budget = prompt("budget:", "");
         if(month != "" && budget != "") {
             data.months[month] = {
@@ -135,16 +137,20 @@ function showCategories(month) {
 }
 
 function deleteMonth(month) {
-    delete data.months[month];
-    localStorage.setItem("data", JSON.stringify(data));
-    navBack();
+    if(confirm("Are you sure you want to delete this month?")) {
+        delete data.months[month];
+        localStorage.setItem("data", JSON.stringify(data));
+        navBack();
+    }  
 }
 
 function deleteCategory(month, category) {
-    data.months[month].amount = Math.round((parseFloat(data.months[month].amount) - parseFloat(data.months[month].categories[category].amount)) * 100) / 100;           
-    delete data.months[month].categories[category];
-    localStorage.setItem("data", JSON.stringify(data));
-    navBack();
+    if(confirm("Are you sure you want to delete this category?")) {
+        data.months[month].amount = Math.round((parseFloat(data.months[month].amount) - parseFloat(data.months[month].categories[category].amount)) * 100) / 100;           
+        delete data.months[month].categories[category];
+        localStorage.setItem("data", JSON.stringify(data));
+        navBack();
+    }   
 }
 
 function showItems(month, category) {
