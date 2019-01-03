@@ -53,6 +53,7 @@ function navBack() {
             document.getElementById('content').appendChild(React.createElement('tr',{onclick: "showCategories('" + key + "');"},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},key),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"}, calcMonth(data.months[key].budget, data.months[key].amount) + '€')));
         }
 
+        document.getElementById('actions').appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2 - 3.1.2019'));
         document.getElementById('amount').textContent = "Happy Pig"
     }  else if(navIndex == 1) {
         navIndex--;
@@ -176,3 +177,4 @@ function showItems(month, category) {
 for (var key in data.months) {
     document.getElementById('content').appendChild(React.createElement('tr',{onclick: "showCategories('" + key + "');"},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},key),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"}, calcMonth(data.months[key].budget, data.months[key].amount) + '€')));
 }
+document.getElementById('actions').appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2 - 3.1.2019'));
