@@ -53,7 +53,7 @@ function navBack() {
             document.getElementById('content').appendChild(React.createElement('tr',{onclick: "showCategories('" + key + "');"},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},key),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"}, calcMonth(data.months[key].budget, data.months[key].amount) + '€')));
         }
 
-        document.getElementById('actions').appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2 - 3.1.2019'));
+        document.getElementById('actions').appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2.1 - 3.1.2019'));
         document.getElementById('amount').textContent = "Happy Pig"
     }  else if(navIndex == 1) {
         navIndex--;
@@ -68,51 +68,59 @@ function calcMonth(_budget, _amount) {
     return Math.round((budget - amount) * 100) / 100
 }
 
+function checkInput(input) {
+    return input != "" && input != null && input != undefined;
+}
+
 function navAction() {
     var _date_ = new Date();
     if(navIndex == 2) {
         var name = prompt("name:", _date_.getDate() + "." + (_date_.getMonth() + 1) + ".");
-        var price = prompt("price:", "");
-        if(name != "" && price != "") {
-            var obj = {};
-            obj[name] = price.replace(",",".");
+        if(checkInput(name)) {
+            var price = prompt("price:", "");
+            if(checkInput(input)) {
+                var obj = {};
+                obj[name] = price.replace(",",".");
 
-            data.months[lastMonth].categories[lastCategory].items.push(obj);
-            data.months[lastMonth].categories[lastCategory].amount = Math.round((parseFloat(data.months[lastMonth].categories[lastCategory].amount) + parseFloat(price.replace(",","."))) * 100) / 100;
-            data.months[lastMonth].amount = Math.round((parseFloat(data.months[lastMonth].amount) + parseFloat(price.replace(",","."))) * 100) / 100;
-            document.getElementById('content').appendChild(React.createElement('tr',{},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},name),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},Math.round(parseFloat(price.replace(",",".")) * 100) / 100 +  '€')));
-            localStorage.setItem("data", JSON.stringify(data));
-            document.getElementById('amount').textContent = data.months[lastMonth].categories[lastCategory].amount + "€";
-        }         
+                data.months[lastMonth].categories[lastCategory].items.push(obj);
+                data.months[lastMonth].categories[lastCategory].amount = Math.round((parseFloat(data.months[lastMonth].categories[lastCategory].amount) + parseFloat(price.replace(",","."))) * 100) / 100;
+                data.months[lastMonth].amount = Math.round((parseFloat(data.months[lastMonth].amount) + parseFloat(price.replace(",","."))) * 100) / 100;
+                document.getElementById('content').appendChild(React.createElement('tr',{},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},name),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},Math.round(parseFloat(price.replace(",",".")) * 100) / 100 +  '€')));
+                localStorage.setItem("data", JSON.stringify(data));
+                document.getElementById('amount').textContent = data.months[lastMonth].categories[lastCategory].amount + "€";
+            }    
+        }      
     } else if(navIndex == 1) {
         var category = prompt("category:", "");
-        if(category != "") {
+        if(checkInput(category)) {
             data.months[lastMonth].categories[category] = {items: [],amount: "0"};
             document.getElementById('content').appendChild(React.createElement('tr',{onclick: "showItems('" + lastMonth + "', '" + category + "');"},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},category),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},'0€')));
             localStorage.setItem("data", JSON.stringify(data));
         } 
     } else if(navIndex == 0) {
         var month = prompt("month:", _months_[_date_.getMonth()] + " " + _date_.getFullYear());
-        var budget = prompt("budget:", "");
-        if(month != "" && budget != "") {
-            data.months[month] = {
-                categories: {
-                    "Lebensmittel / Haushalt": {items: [],amount: "0"},
-                    "Apotheke / Kosmetik": {items: [],amount: "0"},
-                    "Kinder": {items: [],amount: "0"},
-                    "Kleidung": {items: [],amount: "0"},
-                    "Garten / Reparaturen": {items: [],amount: "0"},
-                    "Freizeit / Lotto": {items: [],amount: "0"},
-                    "Auto / Tanken": {items: [],amount: "0"},
-                    "Sonstiges": {items: [],amount: "0"},
-                    "Fixkosten": {items: [],amount: "0"}           
-                },
-                amount: "0",
-                budget: budget
-            };
-
-            document.getElementById('content').appendChild(React.createElement('tr',{onclick: "showCategories('" + month + "');"},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},month),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"}, calcMonth(data.months[month].budget, data.months[month].amount) + '€')));
-            localStorage.setItem("data", JSON.stringify(data));
+        if(checkInput(month)) {
+            var budget = prompt("budget:", "");
+            if(checkInput(budget)) {
+                data.months[month] = {
+                    categories: {
+                        "Lebensmittel / Haushalt": {items: [],amount: "0"},
+                        "Apotheke / Kosmetik": {items: [],amount: "0"},
+                        "Kinder": {items: [],amount: "0"},
+                        "Kleidung": {items: [],amount: "0"},
+                        "Garten / Reparaturen": {items: [],amount: "0"},
+                        "Freizeit / Lotto": {items: [],amount: "0"},
+                        "Auto / Tanken": {items: [],amount: "0"},
+                        "Sonstiges": {items: [],amount: "0"},
+                        "Fixkosten": {items: [],amount: "0"}           
+                    },
+                    amount: "0",
+                    budget: budget
+                };
+    
+                document.getElementById('content').appendChild(React.createElement('tr',{onclick: "showCategories('" + month + "');"},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},month),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"}, calcMonth(data.months[month].budget, data.months[month].amount) + '€')));
+                localStorage.setItem("data", JSON.stringify(data));
+            }
         }
     }    
 }
@@ -177,4 +185,4 @@ function showItems(month, category) {
 for (var key in data.months) {
     document.getElementById('content').appendChild(React.createElement('tr',{onclick: "showCategories('" + key + "');"},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},key),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"}, calcMonth(data.months[key].budget, data.months[key].amount) + '€')));
 }
-document.getElementById('actions').appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2 - 3.1.2019'));
+document.getElementById('actions').appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2.1 - 3.1.2019'));
