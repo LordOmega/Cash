@@ -142,7 +142,9 @@ function showCategories(month) {
 
     document.getElementById('navLeftSpace').style.display = "none";
     document.getElementById('navBack').style.display = "block";
-    document.getElementById('amount').textContent = data.months[month].amount + "€";
+    var _date = new Date();
+    var _days = new Date(_date.getFullYear(), _date.getMonth() + 1, 0).getDate();
+    document.getElementById('amount').textContent = data.months[month].amount + "€ - ca." + ((parseFloat(data.months[month].budget) - parseFloat(data.months[month].amount)) / (_days - _date.getDate())).toFixed(2) + "€ pro Tag";
 }
 
 function deleteMonth(month) {
@@ -178,11 +180,10 @@ function showItems(month, category) {
 
     if(document.getElementById('actions').childElementCount > 0) document.getElementById('actions').removeChild(document.getElementById('actions').lastChild); 
     document.getElementById('actions').appendChild(React.createElement('div',{onclick: 'deleteCategory("' + month + '","' + category + '")', style: "text-align: center; color: rgb(255, 59, 48); padding: 16px;"},'Delete Category'));
-
     document.getElementById('amount').textContent = data.months[month].categories[category].amount + "€";
 }
 
 for (var key in data.months) {
     document.getElementById('content').appendChild(React.createElement('tr',{onclick: "showCategories('" + key + "');"},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},key),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"}, calcMonth(data.months[key].budget, data.months[key].amount) + '€')));
 }
-//document.getElementById('actions').appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2.3 - 4.1.2019'));
+//document.getElementById('actions').appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2.4 - 8.6.2019'));
