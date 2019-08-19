@@ -1,4 +1,4 @@
-if(localStorage.getItem("data") == undefined) {
+if (localStorage.getItem("data") == undefined) {
     localStorage.setItem("data", JSON.stringify({
         months: {}
     }));
@@ -6,66 +6,60 @@ if(localStorage.getItem("data") == undefined) {
 
 var data = JSON.parse(localStorage.getItem("data"));
 const element = document.getElementById('content');
+const actions = document.getElementById('actions');
+const listItem = document.getElementById('listItem');
+const deleteAction = document.getElementById('deleteAction');
 var _months_ = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
-
-var React = {
-    createElement: function (tag, attrs, children) {
-        var e = document.createElement(tag);
-
-        for (var name in attrs) {
-            if (name && attrs.hasOwnProperty(name)) {
-                var v = attrs[name];
-                if (v === true) {
-                    e.setAttribute(name, name);
-                } else if (v !== false && v != null) {
-                    e.setAttribute(name, v.toString());
-                }
-            }
-        }
-
-        for (var i = 2; i < arguments.length; i++) {
-            var child = arguments[i];
-            if(child != null) {
-                e.appendChild(child.nodeType == null ? document.createTextNode(child.toString()) : child);
-            }             
-        }
-
-        return e;
-    }
-}
-
 var navIndex = 0;
 var lastMonth = "";
 var lastCategory = "";
 
+function createListItem(text, amount, onclick) {
+    const clone = document.importNode(listItem.content, true);
+    clone.querySelectorAll('tr')[0].setAttribute('onclick', onclick);
+    const td = clone.querySelectorAll('td');
+    td[0].textContent = text;
+    td[1].textContent = parseFloat(amount).toFixed(2) + ' €';
+    return clone;
+}
+
+function createDeleteAction(text, onclick) {
+    const clone = document.importNode(deleteAction.content, true);
+    clone.querySelectorAll('div')[0].textContent = text;
+    clone.querySelectorAll('div')[0].setAttribute('onclick', onclick);
+    return clone;
+}
+
+function removeElements() {
+    while (actions.firstChild) {
+        actions.firstChild.remove();
+    }
+
+    while (element.firstChild) {
+        element.firstChild.remove();
+    }
+}
+
 function navBack() {
-    navIndex--;  
-    if(navIndex == 0) {
-        if(document.getElementById('actions').childElementCount > 0) document.getElementById('actions').removeChild(document.getElementById('actions').lastChild); 
-        while (element.firstChild) {
-            element.firstChild.remove();
-        }
+    navIndex--;
+    if (navIndex == 0) {
+        removeElements();
 
         document.getElementById('navLeftSpace').style.display = "block";
         document.getElementById('navBack').style.display = "none";
 
         for (var key in data.months) {
-            document.getElementById('content').appendChild(React.createElement('tr',{onclick: "showCategories('" + key + "');"},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},key),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"}, calcMonth(data.months[key].budget, data.months[key].amount) + '€')));
+            document.getElementById('content').appendChild(createListItem(key, calcMonth(data.months[key].budget, data.months[key].amount), "showCategories('" + key + "');"));
         }
-
-        //document.getElementById('actions').appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2.3 - 4.1.2019'));
         document.getElementById('amount').textContent = "Happy Pig"
-    }  else if(navIndex == 1) {
+    } else if (navIndex == 1) {
         navIndex--;
         showCategories(lastMonth);
-    }          
+    }
 }
 
-function calcMonth(_budget, _amount) {
-    var budget = parseFloat(_budget);
-    var amount = parseFloat(_amount);
-
-    return Math.round((budget - amount) * 100) / 100
+function calcMonth(budget, amount) {
+    return Math.round((parseFloat(budget) - parseFloat(amount)) * 100) / 100
 }
 
 function checkInput(input) {
@@ -74,71 +68,98 @@ function checkInput(input) {
 
 function navAction() {
     var _date_ = new Date();
-    if(navIndex == 2) {
+    if (navIndex == 2) {
         var name = prompt("name:", _date_.getDate() + "." + (_date_.getMonth() + 1) + ". ");
-        if(checkInput(name)) {
+        if (checkInput(name)) {
             var price = prompt("price:", "");
-            if(checkInput(price)) {
+            if (checkInput(price)) {
                 var obj = {};
-                obj[name] = price.replace(",",".");
+                obj[name] = price.replace(",", ".");
 
                 data.months[lastMonth].categories[lastCategory].items.push(obj);
-                data.months[lastMonth].categories[lastCategory].amount = Math.round((parseFloat(data.months[lastMonth].categories[lastCategory].amount) + parseFloat(price.replace(",","."))) * 100) / 100;
-                data.months[lastMonth].amount = Math.round((parseFloat(data.months[lastMonth].amount) + parseFloat(price.replace(",","."))) * 100) / 100;
-                document.getElementById('content').appendChild(React.createElement('tr',{},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},name),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},Math.round(parseFloat(price.replace(",",".")) * 100) / 100 +  '€')));
+                data.months[lastMonth].categories[lastCategory].amount = Math.round((parseFloat(data.months[lastMonth].categories[lastCategory].amount) + parseFloat(price.replace(",", "."))) * 100) / 100;
+                data.months[lastMonth].amount = Math.round((parseFloat(data.months[lastMonth].amount) + parseFloat(price.replace(",", "."))) * 100) / 100;
+                document.getElementById('content').appendChild(createListItem(name, Math.round(parseFloat(price.replace(",", ".")) * 100) / 100));
                 localStorage.setItem("data", JSON.stringify(data));
                 document.getElementById('amount').textContent = data.months[lastMonth].categories[lastCategory].amount + "€";
-            }    
-        }      
-    } else if(navIndex == 1) {
+            }
+        }
+    } else if (navIndex == 1) {
         var category = prompt("category:", "");
-        if(checkInput(category)) {
-            data.months[lastMonth].categories[category] = {items: [],amount: "0"};
-            document.getElementById('content').appendChild(React.createElement('tr',{onclick: "showItems('" + lastMonth + "', '" + category + "');"},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},category),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},'0€')));
+        if (checkInput(category)) {
+            data.months[lastMonth].categories[category] = {
+                items: [],
+                amount: "0"
+            };
+            document.getElementById('content').appendChild(createListItem(category, 0.0, "showItems('" + lastMonth + "', '" + category + "');"));
             localStorage.setItem("data", JSON.stringify(data));
-        } 
-    } else if(navIndex == 0) {
+        }
+    } else if (navIndex == 0) {
         var month = prompt("month:", _months_[_date_.getMonth()] + " " + _date_.getFullYear());
-        if(checkInput(month)) {
+        if (checkInput(month)) {
             var budget = prompt("budget:", "");
-            if(checkInput(budget)) {
+            if (checkInput(budget)) {
                 data.months[month] = {
                     categories: {
-                        "Lebensmittel / Haushalt": {items: [],amount: "0"},
-                        "Apotheke / Kosmetik": {items: [],amount: "0"},
-                        "Kinder": {items: [],amount: "0"},
-                        "Kleidung": {items: [],amount: "0"},
-                        "Garten / Reparaturen": {items: [],amount: "0"},
-                        "Freizeit / Lotto": {items: [],amount: "0"},
-                        "Auto / Tanken": {items: [],amount: "0"},
-                        "Sonstiges": {items: [],amount: "0"},
-                        "Fixkosten": {items: [],amount: "0"}           
+                        "Lebensmittel / Haushalt": {
+                            items: [],
+                            amount: "0"
+                        },
+                        "Apotheke / Kosmetik": {
+                            items: [],
+                            amount: "0"
+                        },
+                        "Kinder": {
+                            items: [],
+                            amount: "0"
+                        },
+                        "Kleidung": {
+                            items: [],
+                            amount: "0"
+                        },
+                        "Garten / Reparaturen": {
+                            items: [],
+                            amount: "0"
+                        },
+                        "Freizeit / Lotto": {
+                            items: [],
+                            amount: "0"
+                        },
+                        "Auto / Tanken": {
+                            items: [],
+                            amount: "0"
+                        },
+                        "Sonstiges": {
+                            items: [],
+                            amount: "0"
+                        },
+                        "Fixkosten": {
+                            items: [],
+                            amount: "0"
+                        }
                     },
                     amount: "0",
                     budget: budget
                 };
-    
-                document.getElementById('content').appendChild(React.createElement('tr',{onclick: "showCategories('" + month + "');"},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},month),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"}, calcMonth(data.months[month].budget, data.months[month].amount) + '€')));
+
+                document.getElementById('content').appendChild(createListItem(month, calcMonth(data.months[month].budget, data.months[month].amount), "showCategories('" + month + "');"));
                 localStorage.setItem("data", JSON.stringify(data));
             }
         }
-    }    
+    }
 }
 
 function showCategories(month) {
     navIndex++;
     lastMonth = month;
 
-    while (element.firstChild) {
-        element.firstChild.remove();
-    }       
+    removeElements();
 
     for (var key in data.months[month].categories) {
-        document.getElementById('content').appendChild(React.createElement('tr',{onclick: "showItems('" + month + "', '" + key + "');"},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},key),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},(data.months[month].categories[key].amount == undefined ? 0 : data.months[month].categories[key].amount) +  '€')));
+        document.getElementById('content').appendChild(createListItem(key, (data.months[month].categories[key].amount == undefined ? 0 : data.months[month].categories[key].amount), "showItems('" + month + "', '" + key + "');"));
     }
 
-    if(document.getElementById('actions').childElementCount > 0) document.getElementById('actions').removeChild(document.getElementById('actions').lastChild); 
-    document.getElementById('actions').appendChild(React.createElement('div',{onclick: 'deleteMonth("' + month + '")', style: "text-align: center; color: rgb(255, 59, 48); padding: 16px;"},'Delete Month'));
+    actions.appendChild(createDeleteAction('Delete Month', 'deleteMonth("' + month + '")'));
 
     document.getElementById('navLeftSpace').style.display = "none";
     document.getElementById('navBack').style.display = "block";
@@ -148,42 +169,49 @@ function showCategories(month) {
 }
 
 function deleteMonth(month) {
-    if(confirm("Are you sure you want to delete this month?")) {
+    if (confirm("Are you sure you want to delete this month?")) {
         delete data.months[month];
         localStorage.setItem("data", JSON.stringify(data));
         navBack();
-    }  
+    }
 }
 
 function deleteCategory(month, category) {
-    if(confirm("Are you sure you want to delete this category?")) {
-        data.months[month].amount = Math.round((parseFloat(data.months[month].amount) - parseFloat(data.months[month].categories[category].amount)) * 100) / 100;           
+    if (confirm("Are you sure you want to delete this category?")) {
+        data.months[month].amount = Math.round((parseFloat(data.months[month].amount) - parseFloat(data.months[month].categories[category].amount)) * 100) / 100;
         delete data.months[month].categories[category];
         localStorage.setItem("data", JSON.stringify(data));
         navBack();
-    }   
+    }
 }
 
 function showItems(month, category) {
     navIndex++;
     lastCategory = category;
 
-    while (element.firstChild) {
-        element.firstChild.remove();
-    }
+    removeElements();
+
+    var list = [];
 
     for (var key in data.months[month].categories[category].items) {
-        for(var key2 in data.months[month].categories[category].items[key]) {
-            document.getElementById('content').appendChild(React.createElement('tr',{},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},key2),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},(data.months[month].categories[category].items[key][key2] == undefined ? 0 : data.months[month].categories[category].items[key][key2]) +  '€')));
+        for (var key2 in data.months[month].categories[category].items[key]) {
+            list.push([key, key2]);
         }
     }
 
-    if(document.getElementById('actions').childElementCount > 0) document.getElementById('actions').removeChild(document.getElementById('actions').lastChild); 
-    document.getElementById('actions').appendChild(React.createElement('div',{onclick: 'deleteCategory("' + month + '","' + category + '")', style: "text-align: center; color: rgb(255, 59, 48); padding: 16px;"},'Delete Category'));
+    list.sort((a, b) => {
+        if (a[1].toLowerCase() < b[1].toLowerCase()) return -1;
+        if (a[1].toLowerCase() > b[1].toLowerCase()) return 1;
+        return 0;
+    }).forEach(keys => {
+        document.getElementById('content').appendChild(createListItem(keys[1], (data.months[month].categories[category].items[keys[0]][keys[1]] == undefined ? 0 : data.months[month].categories[category].items[keys[0]][keys[1]])));
+    });
+
+    actions.appendChild(createDeleteAction('Delete Category', 'deleteCategory("' + month + '","' + category + '")'));
     document.getElementById('amount').textContent = data.months[month].categories[category].amount + "€";
 }
 
 for (var key in data.months) {
-    document.getElementById('content').appendChild(React.createElement('tr',{onclick: "showCategories('" + key + "');"},React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"},key),React.createElement('td',{style: "border-bottom: 1px solid rgb(247, 247, 248);"}, calcMonth(data.months[key].budget, data.months[key].amount) + '€')));
+    document.getElementById('content').appendChild(createListItem(key, calcMonth(data.months[key].budget, data.months[key].amount), "showCategories('" + key + "');"));
 }
-//document.getElementById('actions').appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2.4 - 8.6.2019'));
+//actions.appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2.5 - 19.8.2019'));
