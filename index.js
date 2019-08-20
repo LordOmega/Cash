@@ -23,10 +23,15 @@ function createListItem(text, amount, onclick) {
     return clone;
 }
 
-function createDeleteAction(text, onclick) {
+function createAction(text, onclick, color) {
     const clone = document.importNode(deleteAction.content, true);
     clone.querySelectorAll('div')[0].textContent = text;
     clone.querySelectorAll('div')[0].setAttribute('onclick', onclick);
+    if(color != undefined && color != null && color != "") {
+        clone.querySelectorAll('div')[0].style.color = color;
+    } else {
+        clone.querySelectorAll('div')[0].style.color = "rgb(255, 59, 48)";
+    }
     return clone;
 }
 
@@ -40,6 +45,18 @@ function removeElements() {
     }
 }
 
+function exportData() {
+    const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+    const a = document.createElement('a');
+    a.setAttribute('href', URL.createObjectURL(blob));
+    a.setAttribute('download', new Date().toISOString() + ' - cash.json');
+    a.style.display = 'none';
+    document.body.append(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blob);
+}
+
 function navBack() {
     navIndex--;
     if (navIndex == 0) {
@@ -51,6 +68,9 @@ function navBack() {
         for (var key in data.months) {
             document.getElementById('content').appendChild(createListItem(key, calcMonth(data.months[key].budget, data.months[key].amount), "showCategories('" + key + "');"));
         }
+
+        actions.appendChild(createAction('Export', 'exportData();', 'rgb(74, 164, 248)'));
+
         document.getElementById('amount').textContent = "Happy Pig"
     } else if (navIndex == 1) {
         navIndex--;
@@ -159,7 +179,7 @@ function showCategories(month) {
         document.getElementById('content').appendChild(createListItem(key, (data.months[month].categories[key].amount == undefined ? 0 : data.months[month].categories[key].amount), "showItems('" + month + "', '" + key + "');"));
     }
 
-    actions.appendChild(createDeleteAction('Delete Month', 'deleteMonth("' + month + '")'));
+    actions.appendChild(createAction('Delete Month', 'deleteMonth("' + month + '")'));
 
     document.getElementById('navLeftSpace').style.display = "none";
     document.getElementById('navBack').style.display = "block";
@@ -231,11 +251,13 @@ function showItems(month, category) {
         document.getElementById('content').appendChild(createListItem(keys[1], (data.months[month].categories[category].items[keys[0]][keys[1]] == undefined ? 0 : data.months[month].categories[category].items[keys[0]][keys[1]])));
     });
 
-    actions.appendChild(createDeleteAction('Delete Category', 'deleteCategory("' + month + '","' + category + '")'));
+    actions.appendChild(createAction('Delete Category', 'deleteCategory("' + month + '","' + category + '")'));
     document.getElementById('amount').textContent = data.months[month].categories[category].amount + "€";
 }
 
 for (var key in data.months) {
     document.getElementById('content').appendChild(createListItem(key, calcMonth(data.months[key].budget, data.months[key].amount), "showCategories('" + key + "');"));
 }
-//actions.appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2.6 - 20.8.2019'));
+
+actions.appendChild(createAction('Export', 'exportData();', 'rgb(74, 164, 248)'));
+//actions.appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2.7 - 20.8.2019'));
