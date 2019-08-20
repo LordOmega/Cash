@@ -1,4 +1,4 @@
-var CACHE_NAME = 'Cash_Happy_Pig_v1_2_5';
+var CACHE_NAME = 'Cash_Happy_Pig_v1_2_6';
 var urlsToCache = [
   '/Cash',
   '/Cash/',

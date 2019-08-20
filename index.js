@@ -199,10 +199,34 @@ function showItems(month, category) {
         }
     }
 
-    list.sort((a, b) => {
-        if (a[1].toLowerCase() < b[1].toLowerCase()) return -1;
-        if (a[1].toLowerCase() > b[1].toLowerCase()) return 1;
-        return 0;
+    list.map(el => {
+        if(el[1].includes(".")) {
+            var _el = el[1].split(".")[0];
+            if(!isNaN(parseInt(_el))) {
+                return [el[0],el[1],parseInt(_el)];
+            }
+        } 
+        return el;
+    }).sort((a, b) => {
+        if(a.length > 2 && b.length > 2) {
+            return a[2] - b[2];
+        } else if(a.length > 2 || b.length > 2) {
+            if(a.length > 2) {
+                return -1;
+            } else if(b.length > 2) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            if (a[1].toLowerCase() < b[1].toLowerCase()) {
+                return -1;
+            }
+            if (a[1].toLowerCase() > b[1].toLowerCase()) {
+                return 1;
+            }
+            return 0;
+        }
     }).forEach(keys => {
         document.getElementById('content').appendChild(createListItem(keys[1], (data.months[month].categories[category].items[keys[0]][keys[1]] == undefined ? 0 : data.months[month].categories[category].items[keys[0]][keys[1]])));
     });
@@ -214,4 +238,4 @@ function showItems(month, category) {
 for (var key in data.months) {
     document.getElementById('content').appendChild(createListItem(key, calcMonth(data.months[key].budget, data.months[key].amount), "showCategories('" + key + "');"));
 }
-//actions.appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2.5 - 19.8.2019'));
+//actions.appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2.6 - 20.8.2019'));
