@@ -90,68 +90,98 @@ function checkInput(input) {
     return input != '' && input != null && input != undefined;
 }
 
+function checkNumber(number) {
+    return checkInput(number) ? (!Number.isNaN(parseFloat(number.replace(',', '.')))) : false;
+}
+
 function navAction() {
     var _date_ = new Date();
     if (navIndex == 2) {
-        var name = prompt('name:', _date_.getDate() + '.' + (_date_.getMonth() + 1) + '. ');
+        var name = prompt('name:', _date_.getDate() + '.' + (_date_.getMonth() + 1) + '. ').trim();
         if (checkInput(name)) {
-            var price = prompt('price:', '');
-            if (checkInput(price)) {
+            var price = prompt('price:', '').trim();
+            if (checkNumber(price)) {
                 var obj = {};
                 obj[name] = price.replace(',', '.');
 
-                data.months[lastMonth].categories[lastCategory].items.push(obj);
+                var result = data.months[lastMonth].categories[lastCategory].items.filter(item => {
+                    var keys = Object.keys(item);
+                    if (keys.length > 0) {
+                        return name.trim() == keys[0].trim();
+                    }
+                    return false;
+                });
+
+                if (result.length == 1) {
+                    var key = Object.keys(result[0])[0];
+                    data.months[lastMonth].categories[lastCategory].items.splice(data.months[lastMonth].categories[lastCategory].items.indexOf(result[0]), 1);
+
+                    var obj2 = {};
+                    obj2[key] = (parseFloat(result[0][key]) + parseFloat(price.replace(',', '.'))).toString();
+                    data.months[lastMonth].categories[lastCategory].items.push(obj2);
+                    var result = document.getElementById('content').querySelectorAll('tr');
+                    Object.entries(result).filter(tr => tr[1].querySelector('td').textContent.trim() == key)[0][1].querySelectorAll('td')[1].textContent = (Math.round(parseFloat(obj2[key]) * 100) / 100).toFixed(2) + ' €';
+                } else {
+                    data.months[lastMonth].categories[lastCategory].items.push(obj);
+                    document.getElementById('content').appendChild(createListItem(name, Math.round(parseFloat(price.replace(',', '.')) * 100) / 100));
+                }
+
                 data.months[lastMonth].categories[lastCategory].amount = Math.round((parseFloat(data.months[lastMonth].categories[lastCategory].amount) + parseFloat(price.replace(',', '.'))) * 100) / 100;
                 data.months[lastMonth].amount = Math.round((parseFloat(data.months[lastMonth].amount) + parseFloat(price.replace(',', '.'))) * 100) / 100;
-                document.getElementById('content').appendChild(createListItem(name, Math.round(parseFloat(price.replace(',', '.')) * 100) / 100));
                 localStorage.setItem('data', JSON.stringify(data));
                 document.getElementById('amount').textContent = data.months[lastMonth].categories[lastCategory].amount + '€';
             }
         }
     } else if (navIndex == 1) {
-        var category = prompt('category:', '');
+        var category = prompt('category:', '').trim();
         if (checkInput(category)) {
             if (data.categories == undefined || data.categories == null) {
                 data.categories = [];
             }
-            if (!data.categories.includes(category)) {
-                data.categories.push(category);
+            if (confirm('Would you like to add the category to future months as well?')) {
+                if (!data.categories.includes(category)) {
+                    data.categories.push(category);
+                }
             }
             if (data.months[lastMonth].categories == undefined || data.months[lastMonth].categories == null) {
                 data.months[lastMonth].categories = {};
             }
-            data.months[lastMonth].categories[category] = {
-                items: [],
-                amount: '0'
-            };
-            document.getElementById('content').appendChild(createListItem(category, 0.0, 'showItems("' + lastMonth + '", "' + category + '");'));
+            if (data.months[lastMonth].categories[category] == undefined || data.months[lastMonth].categories[category] == null) {
+                data.months[lastMonth].categories[category] = {
+                    items: [],
+                    amount: '0'
+                };
+                document.getElementById('content').appendChild(createListItem(category, 0.0, 'showItems("' + lastMonth + '", "' + category + '");'));
+            }
             localStorage.setItem('data', JSON.stringify(data));
         }
     } else if (navIndex == 0) {
-        var month = prompt('month:', _months_[_date_.getMonth()] + ' ' + _date_.getFullYear());
+        var month = prompt('month:', _months_[_date_.getMonth()] + ' ' + _date_.getFullYear()).trim();
         if (checkInput(month)) {
-            var budget = prompt('budget:', (data.budget != undefined && data.budget != null && data.budget != '' ? data.budget : ''));
-            if (checkInput(budget)) {
-                data.budget = budget;
+            var budget = prompt('budget:', (data.budget != undefined && data.budget != null && data.budget != '' ? data.budget : '')).trim();
+            if (checkNumber(budget)) {
+                if (data.months[month] == undefined || data.months[month] == null) {
+                    data.budget = budget;
 
-                var categories = {};
+                    var categories = {};
 
-                if (data.categories != undefined && data.categories != null) {
-                    data.categories.forEach(category => {
-                        categories[category] = {
-                            items: [],
-                            amount: '0'
-                        };
-                    });
+                    if (data.categories != undefined && data.categories != null) {
+                        data.categories.forEach(category => {
+                            categories[category] = {
+                                items: [],
+                                amount: '0'
+                            };
+                        });
+                    }
+
+                    data.months[month] = {
+                        categories: categories,
+                        amount: '0',
+                        budget: budget
+                    };
+
+                    document.getElementById('content').appendChild(createListItem(month, calcMonth(data.months[month].budget, data.months[month].amount), 'showCategories("' + month + '");'));
                 }
-
-                data.months[month] = {
-                    categories: categories,
-                    amount: '0',
-                    budget: budget
-                };
-
-                document.getElementById('content').appendChild(createListItem(month, calcMonth(data.months[month].budget, data.months[month].amount), 'showCategories("' + month + '");'));
                 localStorage.setItem('data', JSON.stringify(data));
             }
         }
@@ -178,7 +208,8 @@ function showCategories(month) {
 }
 
 function deleteMonth(month) {
-    if (confirm('Are you sure you want to delete this month?')) {
+    var input = prompt('Please enter the month "' + month + '" in the field below and press "ok" to delete.', '');
+    if (input.trim() == month.trim()) {
         delete data.months[month];
         localStorage.setItem('data', JSON.stringify(data));
         navBack();
@@ -186,7 +217,8 @@ function deleteMonth(month) {
 }
 
 function deleteCategory(month, category) {
-    if (confirm('Are you sure you want to delete this category?')) {
+    var input = prompt('Please enter the category name "' + category + '" in the field below and press "ok" to delete.', '');
+    if (input.trim() == category.trim()) {
         data.months[month].amount = Math.round((parseFloat(data.months[month].amount) - parseFloat(data.months[month].categories[category].amount)) * 100) / 100;
         delete data.months[month].categories[category];
         if (confirm('Would you like to remove the category for future months as well?')) {
@@ -252,4 +284,4 @@ for (var key in data.months) {
 }
 
 actions.appendChild(createAction('Export', 'exportData();', 'rgb(74, 164, 248)'));
-//actions.appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2.8 - 21.8.2019'));
+//actions.appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2.9 - 21.8.2019'));
