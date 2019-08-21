@@ -1,18 +1,20 @@
-if (localStorage.getItem("data") == undefined) {
-    localStorage.setItem("data", JSON.stringify({
+if (localStorage.getItem('data') == undefined) {
+    localStorage.setItem('data', JSON.stringify({
+        budget: '0',
+        categories: [],
         months: {}
     }));
 }
 
-var data = JSON.parse(localStorage.getItem("data"));
+var data = JSON.parse(localStorage.getItem('data'));
 const element = document.getElementById('content');
 const actions = document.getElementById('actions');
 const listItem = document.getElementById('listItem');
 const deleteAction = document.getElementById('deleteAction');
-var _months_ = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+var _months_ = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
 var navIndex = 0;
-var lastMonth = "";
-var lastCategory = "";
+var lastMonth = '';
+var lastCategory = '';
 
 function createListItem(text, amount, onclick) {
     const clone = document.importNode(listItem.content, true);
@@ -27,10 +29,10 @@ function createAction(text, onclick, color) {
     const clone = document.importNode(deleteAction.content, true);
     clone.querySelectorAll('div')[0].textContent = text;
     clone.querySelectorAll('div')[0].setAttribute('onclick', onclick);
-    if(color != undefined && color != null && color != "") {
+    if (color != undefined && color != null && color != '') {
         clone.querySelectorAll('div')[0].style.color = color;
     } else {
-        clone.querySelectorAll('div')[0].style.color = "rgb(255, 59, 48)";
+        clone.querySelectorAll('div')[0].style.color = 'rgb(255, 59, 48)';
     }
     return clone;
 }
@@ -46,7 +48,9 @@ function removeElements() {
 }
 
 function exportData() {
-    const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+    const blob = new Blob([JSON.stringify(data)], {
+        type: 'application/json'
+    });
     const a = document.createElement('a');
     a.setAttribute('href', URL.createObjectURL(blob));
     a.setAttribute('download', new Date().toISOString() + ' - cash.json');
@@ -62,16 +66,16 @@ function navBack() {
     if (navIndex == 0) {
         removeElements();
 
-        document.getElementById('navLeftSpace').style.display = "block";
-        document.getElementById('navBack').style.display = "none";
+        document.getElementById('navLeftSpace').style.display = 'block';
+        document.getElementById('navBack').style.display = 'none';
 
         for (var key in data.months) {
-            document.getElementById('content').appendChild(createListItem(key, calcMonth(data.months[key].budget, data.months[key].amount), "showCategories('" + key + "');"));
+            document.getElementById('content').appendChild(createListItem(key, calcMonth(data.months[key].budget, data.months[key].amount), 'showCategories("' + key + '");'));
         }
 
         actions.appendChild(createAction('Export', 'exportData();', 'rgb(74, 164, 248)'));
 
-        document.getElementById('amount').textContent = "Happy Pig"
+        document.getElementById('amount').textContent = 'Happy Pig';
     } else if (navIndex == 1) {
         navIndex--;
         showCategories(lastMonth);
@@ -79,91 +83,76 @@ function navBack() {
 }
 
 function calcMonth(budget, amount) {
-    return Math.round((parseFloat(budget) - parseFloat(amount)) * 100) / 100
+    return Math.round((parseFloat(budget) - parseFloat(amount)) * 100) / 100;
 }
 
 function checkInput(input) {
-    return input != "" && input != null && input != undefined;
+    return input != '' && input != null && input != undefined;
 }
 
 function navAction() {
     var _date_ = new Date();
     if (navIndex == 2) {
-        var name = prompt("name:", _date_.getDate() + "." + (_date_.getMonth() + 1) + ". ");
+        var name = prompt('name:', _date_.getDate() + '.' + (_date_.getMonth() + 1) + '. ');
         if (checkInput(name)) {
-            var price = prompt("price:", "");
+            var price = prompt('price:', '');
             if (checkInput(price)) {
                 var obj = {};
-                obj[name] = price.replace(",", ".");
+                obj[name] = price.replace(',', '.');
 
                 data.months[lastMonth].categories[lastCategory].items.push(obj);
-                data.months[lastMonth].categories[lastCategory].amount = Math.round((parseFloat(data.months[lastMonth].categories[lastCategory].amount) + parseFloat(price.replace(",", "."))) * 100) / 100;
-                data.months[lastMonth].amount = Math.round((parseFloat(data.months[lastMonth].amount) + parseFloat(price.replace(",", "."))) * 100) / 100;
-                document.getElementById('content').appendChild(createListItem(name, Math.round(parseFloat(price.replace(",", ".")) * 100) / 100));
-                localStorage.setItem("data", JSON.stringify(data));
-                document.getElementById('amount').textContent = data.months[lastMonth].categories[lastCategory].amount + "€";
+                data.months[lastMonth].categories[lastCategory].amount = Math.round((parseFloat(data.months[lastMonth].categories[lastCategory].amount) + parseFloat(price.replace(',', '.'))) * 100) / 100;
+                data.months[lastMonth].amount = Math.round((parseFloat(data.months[lastMonth].amount) + parseFloat(price.replace(',', '.'))) * 100) / 100;
+                document.getElementById('content').appendChild(createListItem(name, Math.round(parseFloat(price.replace(',', '.')) * 100) / 100));
+                localStorage.setItem('data', JSON.stringify(data));
+                document.getElementById('amount').textContent = data.months[lastMonth].categories[lastCategory].amount + '€';
             }
         }
     } else if (navIndex == 1) {
-        var category = prompt("category:", "");
+        var category = prompt('category:', '');
         if (checkInput(category)) {
+            if (data.categories == undefined || data.categories == null) {
+                data.categories = [];
+            }
+            if (!data.categories.includes(category)) {
+                data.categories.push(category);
+            }
+            if (data.months[lastMonth].categories == undefined || data.months[lastMonth].categories == null) {
+                data.months[lastMonth].categories = {};
+            }
             data.months[lastMonth].categories[category] = {
                 items: [],
-                amount: "0"
+                amount: '0'
             };
-            document.getElementById('content').appendChild(createListItem(category, 0.0, "showItems('" + lastMonth + "', '" + category + "');"));
-            localStorage.setItem("data", JSON.stringify(data));
+            document.getElementById('content').appendChild(createListItem(category, 0.0, 'showItems("' + lastMonth + '", "' + category + '");'));
+            localStorage.setItem('data', JSON.stringify(data));
         }
     } else if (navIndex == 0) {
-        var month = prompt("month:", _months_[_date_.getMonth()] + " " + _date_.getFullYear());
+        var month = prompt('month:', _months_[_date_.getMonth()] + ' ' + _date_.getFullYear());
         if (checkInput(month)) {
-            var budget = prompt("budget:", "");
+            var budget = prompt('budget:', (data.budget != undefined && data.budget != null && data.budget != '' ? data.budget : ''));
             if (checkInput(budget)) {
+                data.budget = budget;
+
+                var categories = {};
+
+                if (data.categories != undefined && data.categories != null) {
+                    data.categories.forEach(category => {
+                        categories[category] = {
+                            items: [],
+                            amount: '0'
+                        };
+                    });
+                }
+
                 data.months[month] = {
-                    categories: {
-                        "Lebensmittel / Haushalt": {
-                            items: [],
-                            amount: "0"
-                        },
-                        "Apotheke / Kosmetik": {
-                            items: [],
-                            amount: "0"
-                        },
-                        "Kinder": {
-                            items: [],
-                            amount: "0"
-                        },
-                        "Kleidung": {
-                            items: [],
-                            amount: "0"
-                        },
-                        "Garten / Reparaturen": {
-                            items: [],
-                            amount: "0"
-                        },
-                        "Freizeit / Lotto": {
-                            items: [],
-                            amount: "0"
-                        },
-                        "Auto / Tanken": {
-                            items: [],
-                            amount: "0"
-                        },
-                        "Sonstiges": {
-                            items: [],
-                            amount: "0"
-                        },
-                        "Fixkosten": {
-                            items: [],
-                            amount: "0"
-                        }
-                    },
-                    amount: "0",
+                    categories: categories,
+                    amount: '0',
                     budget: budget
                 };
 
-                document.getElementById('content').appendChild(createListItem(month, calcMonth(data.months[month].budget, data.months[month].amount), "showCategories('" + month + "');"));
-                localStorage.setItem("data", JSON.stringify(data));
+                document.getElementById('content').appendChild(createListItem(month, calcMonth(data.months[month].budget, data.months[month].amount), 'showCategories("' + month + '");'));
+                localStorage.setItem('data', JSON.stringify(data));
             }
         }
     }
@@ -176,31 +165,34 @@ function showCategories(month) {
     removeElements();
 
     for (var key in data.months[month].categories) {
-        document.getElementById('content').appendChild(createListItem(key, (data.months[month].categories[key].amount == undefined ? 0 : data.months[month].categories[key].amount), "showItems('" + month + "', '" + key + "');"));
+        document.getElementById('content').appendChild(createListItem(key, (data.months[month].categories[key].amount == undefined ? 0 : data.months[month].categories[key].amount), 'showItems("' + month + '", "' + key + '");'));
     }
 
     actions.appendChild(createAction('Delete Month', 'deleteMonth("' + month + '")'));
 
-    document.getElementById('navLeftSpace').style.display = "none";
-    document.getElementById('navBack').style.display = "block";
+    document.getElementById('navLeftSpace').style.display = 'none';
+    document.getElementById('navBack').style.display = 'block';
     var _date = new Date();
     var _days = new Date(_date.getFullYear(), _date.getMonth() + 1, 0).getDate();
-    document.getElementById('amount').textContent = data.months[month].amount + "€ - ca." + ((parseFloat(data.months[month].budget) - parseFloat(data.months[month].amount)) / (_days - _date.getDate())).toFixed(2) + "€ pro Tag";
+    document.getElementById('amount').textContent = data.months[month].amount + '€ - ca.' + ((parseFloat(data.months[month].budget) - parseFloat(data.months[month].amount)) / (_days - _date.getDate())).toFixed(2) + '€ pro Tag';
 }
 
 function deleteMonth(month) {
-    if (confirm("Are you sure you want to delete this month?")) {
+    if (confirm('Are you sure you want to delete this month?')) {
         delete data.months[month];
-        localStorage.setItem("data", JSON.stringify(data));
+        localStorage.setItem('data', JSON.stringify(data));
         navBack();
     }
 }
 
 function deleteCategory(month, category) {
-    if (confirm("Are you sure you want to delete this category?")) {
+    if (confirm('Are you sure you want to delete this category?')) {
         data.months[month].amount = Math.round((parseFloat(data.months[month].amount) - parseFloat(data.months[month].categories[category].amount)) * 100) / 100;
         delete data.months[month].categories[category];
-        localStorage.setItem("data", JSON.stringify(data));
+        if (confirm('Would you like to remove the category for future months as well?')) {
+            data.categories.splice(data.categories.indexOf(category), 1);
+        }
+        localStorage.setItem('data', JSON.stringify(data));
         navBack();
     }
 }
@@ -220,20 +212,20 @@ function showItems(month, category) {
     }
 
     list.map(el => {
-        if(el[1].includes(".")) {
-            var _el = el[1].split(".")[0];
-            if(!isNaN(parseInt(_el))) {
-                return [el[0],el[1],parseInt(_el)];
+        if (el[1].includes('.')) {
+            var _el = el[1].split('.')[0];
+            if (!isNaN(parseInt(_el))) {
+                return [el[0], el[1], parseInt(_el)];
             }
-        } 
+        }
         return el;
     }).sort((a, b) => {
-        if(a.length > 2 && b.length > 2) {
+        if (a.length > 2 && b.length > 2) {
             return a[2] - b[2];
-        } else if(a.length > 2 || b.length > 2) {
-            if(a.length > 2) {
+        } else if (a.length > 2 || b.length > 2) {
+            if (a.length > 2) {
                 return -1;
-            } else if(b.length > 2) {
+            } else if (b.length > 2) {
                 return 1;
             } else {
                 return 0;
@@ -252,12 +244,12 @@ function showItems(month, category) {
     });
 
     actions.appendChild(createAction('Delete Category', 'deleteCategory("' + month + '","' + category + '")'));
-    document.getElementById('amount').textContent = data.months[month].categories[category].amount + "€";
+    document.getElementById('amount').textContent = data.months[month].categories[category].amount + '€';
 }
 
 for (var key in data.months) {
-    document.getElementById('content').appendChild(createListItem(key, calcMonth(data.months[key].budget, data.months[key].amount), "showCategories('" + key + "');"));
+    document.getElementById('content').appendChild(createListItem(key, calcMonth(data.months[key].budget, data.months[key].amount), 'showCategories("' + key + '");'));
 }
 
 actions.appendChild(createAction('Export', 'exportData();', 'rgb(74, 164, 248)'));
-//actions.appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2.7 - 20.8.2019'));
+//actions.appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2.8 - 21.8.2019'));
