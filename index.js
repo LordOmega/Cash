@@ -47,18 +47,60 @@ function removeElements() {
     }
 }
 
-function exportData() {
-    const blob = new Blob([JSON.stringify(data)], {
-        type: 'application/json'
+function exportData(_data, _type, _file) {
+    const blob = new Blob([_data], {
+        encoding: 'UTF-8',
+        type: _type + ';charset=UTF-8'
     });
     const a = document.createElement('a');
     a.setAttribute('href', URL.createObjectURL(blob));
-    a.setAttribute('download', new Date().toISOString() + ' - cash.json');
+    a.setAttribute('download', _file);
     a.style.display = 'none';
     document.body.append(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(blob);
+}
+
+function exportJSON() {
+    exportData(JSON.stringify(data), 'application/json', new Date().toISOString() + ' - cash.json');
+}
+
+function exportCSV() {
+    var lines = [];
+    var keys = Object.keys(data.months[lastMonth].categories);
+    var width = keys.length;
+    var height = Math.max(...Object.entries(data.months[lastMonth].categories).map(entry => entry[1].items.length));
+
+    lines.push('Column:;' + keys.join(';'));
+
+    for(var h = 0; h < height; h++) {
+        var line = h + 1 + ';';
+        for(var w = 0; w < width; w++) {
+            var entries = Object.entries(data.months[lastMonth].categories[keys[w]]);
+            if(h < entries[0][1].length) {
+                line = line + Object.entries(entries[0][1][h])[0][0] + ' - ' + parseFloat(Object.entries(entries[0][1][h])[0][1]).toFixed(2) + ';';
+            } else {
+                line = line + ';';
+            } 
+        }
+        lines.push(line);
+    }
+
+    lines.push('Sum:;' + Object.entries(data.months[lastMonth].categories).map(entry => parseFloat(entry[1].amount).toFixed(2)).join(';'));
+    lines.push('');
+
+    if(width >= 2) {
+        lines.push(';Month:;' + lastMonth);
+        lines.push(';Total:;' + parseFloat(data.months[lastMonth].amount).toFixed(2));
+        lines.push('');
+        lines.push(';Income:;' + parseFloat(data.months[lastMonth].budget).toFixed(2));
+        lines.push(';Expenditure:;' + parseFloat(data.months[lastMonth].amount).toFixed(2));
+        var diff = parseFloat(data.months[lastMonth].budget) - parseFloat(data.months[lastMonth].amount);
+        lines.push(';Plus/Minus:;' + (diff > 0 ? ('+' + diff.toFixed(2)) : diff.toFixed(2)));
+    }
+
+    exportData(lines.join('\n'), 'text/csv', lastMonth + '.csv');
 }
 
 function navBack() {
@@ -73,7 +115,7 @@ function navBack() {
             document.getElementById('content').appendChild(createListItem(key, calcMonth(data.months[key].budget, data.months[key].amount), 'showCategories("' + key + '");'));
         }
 
-        actions.appendChild(createAction('Export', 'exportData();', 'rgb(74, 164, 248)'));
+        actions.appendChild(createAction('Export', 'exportJSON();', 'rgb(74, 164, 248)'));
 
         document.getElementById('amount').textContent = 'Happy Pig';
     } else if (navIndex == 1) {
@@ -200,6 +242,10 @@ function showCategories(month) {
 
     actions.appendChild(createAction('Delete Month', 'deleteMonth("' + month + '")'));
 
+    if (Object.keys(data.months[month].categories).length > 0) {
+        actions.appendChild(createAction('Export', 'exportCSV();', 'rgb(74, 164, 248)'));
+    }
+
     document.getElementById('navLeftSpace').style.display = 'none';
     document.getElementById('navBack').style.display = 'block';
     var _date = new Date();
@@ -283,5 +329,5 @@ for (var key in data.months) {
     document.getElementById('content').appendChild(createListItem(key, calcMonth(data.months[key].budget, data.months[key].amount), 'showCategories("' + key + '");'));
 }
 
-actions.appendChild(createAction('Export', 'exportData();', 'rgb(74, 164, 248)'));
-//actions.appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.2.9 - 21.8.2019'));
+actions.appendChild(createAction('Export', 'exportJSON();', 'rgb(74, 164, 248)'));
+//actions.appendChild(React.createElement('div',{style: "text-align: center; color: black; padding: 16px;"},'v1.3.0 - 22.8.2019'));
